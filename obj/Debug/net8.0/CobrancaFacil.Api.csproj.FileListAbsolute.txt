@@ -6,6 +6,7 @@ C:\Dev\202601\api\CobrancaFacil.Api\bin\Debug\net8.0\CobrancaFacil.Api.runtimeco
 C:\Dev\202601\api\CobrancaFacil.Api\bin\Debug\net8.0\CobrancaFacil.Api.dll
 C:\Dev\202601\api\CobrancaFacil.Api\bin\Debug\net8.0\CobrancaFacil.Api.pdb
 C:\Dev\202601\api\CobrancaFacil.Api\bin\Debug\net8.0\Humanizer.dll
+C:\Dev\202601\api\CobrancaFacil.Api\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
 C:\Dev\202601\api\CobrancaFacil.Api\bin\Debug\net8.0\Microsoft.AspNetCore.OpenApi.dll
 C:\Dev\202601\api\CobrancaFacil.Api\bin\Debug\net8.0\Microsoft.Bcl.AsyncInterfaces.dll
 C:\Dev\202601\api\CobrancaFacil.Api\bin\Debug\net8.0\Microsoft.CodeAnalysis.dll
@@ -17,6 +18,12 @@ C:\Dev\202601\api\CobrancaFacil.Api\bin\Debug\net8.0\Microsoft.EntityFrameworkCo
 C:\Dev\202601\api\CobrancaFacil.Api\bin\Debug\net8.0\Microsoft.EntityFrameworkCore.Design.dll
 C:\Dev\202601\api\CobrancaFacil.Api\bin\Debug\net8.0\Microsoft.EntityFrameworkCore.Relational.dll
 C:\Dev\202601\api\CobrancaFacil.Api\bin\Debug\net8.0\Microsoft.Extensions.DependencyModel.dll
+C:\Dev\202601\api\CobrancaFacil.Api\bin\Debug\net8.0\Microsoft.IdentityModel.Abstractions.dll
+C:\Dev\202601\api\CobrancaFacil.Api\bin\Debug\net8.0\Microsoft.IdentityModel.JsonWebTokens.dll
+C:\Dev\202601\api\CobrancaFacil.Api\bin\Debug\net8.0\Microsoft.IdentityModel.Logging.dll
+C:\Dev\202601\api\CobrancaFacil.Api\bin\Debug\net8.0\Microsoft.IdentityModel.Protocols.dll
+C:\Dev\202601\api\CobrancaFacil.Api\bin\Debug\net8.0\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
+C:\Dev\202601\api\CobrancaFacil.Api\bin\Debug\net8.0\Microsoft.IdentityModel.Tokens.dll
 C:\Dev\202601\api\CobrancaFacil.Api\bin\Debug\net8.0\Microsoft.OpenApi.dll
 C:\Dev\202601\api\CobrancaFacil.Api\bin\Debug\net8.0\Mono.TextTemplating.dll
 C:\Dev\202601\api\CobrancaFacil.Api\bin\Debug\net8.0\MySqlConnector.dll
@@ -30,6 +37,7 @@ C:\Dev\202601\api\CobrancaFacil.Api\bin\Debug\net8.0\System.Composition.Conventi
 C:\Dev\202601\api\CobrancaFacil.Api\bin\Debug\net8.0\System.Composition.Hosting.dll
 C:\Dev\202601\api\CobrancaFacil.Api\bin\Debug\net8.0\System.Composition.Runtime.dll
 C:\Dev\202601\api\CobrancaFacil.Api\bin\Debug\net8.0\System.Composition.TypedParts.dll
+C:\Dev\202601\api\CobrancaFacil.Api\bin\Debug\net8.0\System.IdentityModel.Tokens.Jwt.dll
 C:\Dev\202601\api\CobrancaFacil.Api\bin\Debug\net8.0\cs\Microsoft.CodeAnalysis.resources.dll
 C:\Dev\202601\api\CobrancaFacil.Api\bin\Debug\net8.0\de\Microsoft.CodeAnalysis.resources.dll
 C:\Dev\202601\api\CobrancaFacil.Api\bin\Debug\net8.0\es\Microsoft.CodeAnalysis.resources.dll
@@ -89,6 +97,7 @@ C:\Dev\202601\api\CobrancaFacil.Api\obj\Debug\net8.0\CobrancaFacil.Api.AssemblyI
 C:\Dev\202601\api\CobrancaFacil.Api\obj\Debug\net8.0\CobrancaFacil.Api.csproj.CoreCompileInputs.cache
 C:\Dev\202601\api\CobrancaFacil.Api\obj\Debug\net8.0\CobrancaFacil.Api.MvcApplicationPartsAssemblyInfo.cs
 C:\Dev\202601\api\CobrancaFacil.Api\obj\Debug\net8.0\CobrancaFacil.Api.MvcApplicationPartsAssemblyInfo.cache
+C:\Dev\202601\api\CobrancaFacil.Api\obj\Debug\net8.0\CobrancaFacil.Api.sourcelink.json
 C:\Dev\202601\api\CobrancaFacil.Api\obj\Debug\net8.0\staticwebassets.build.json
 C:\Dev\202601\api\CobrancaFacil.Api\obj\Debug\net8.0\staticwebassets.development.json
 C:\Dev\202601\api\CobrancaFacil.Api\obj\Debug\net8.0\staticwebassets\msbuild.CobrancaFacil.Api.Microsoft.AspNetCore.StaticWebAssets.props
@@ -103,11 +112,3 @@ C:\Dev\202601\api\CobrancaFacil.Api\obj\Debug\net8.0\refint\CobrancaFacil.Api.dl
 C:\Dev\202601\api\CobrancaFacil.Api\obj\Debug\net8.0\CobrancaFacil.Api.pdb
 C:\Dev\202601\api\CobrancaFacil.Api\obj\Debug\net8.0\CobrancaFacil.Api.genruntimeconfig.cache
 C:\Dev\202601\api\CobrancaFacil.Api\obj\Debug\net8.0\ref\CobrancaFacil.Api.dll
-C:\Dev\202601\api\CobrancaFacil.Api\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
-C:\Dev\202601\api\CobrancaFacil.Api\bin\Debug\net8.0\Microsoft.IdentityModel.Abstractions.dll
-C:\Dev\202601\api\CobrancaFacil.Api\bin\Debug\net8.0\Microsoft.IdentityModel.JsonWebTokens.dll
-C:\Dev\202601\api\CobrancaFacil.Api\bin\Debug\net8.0\Microsoft.IdentityModel.Logging.dll
-C:\Dev\202601\api\CobrancaFacil.Api\bin\Debug\net8.0\Microsoft.IdentityModel.Protocols.dll
-C:\Dev\202601\api\CobrancaFacil.Api\bin\Debug\net8.0\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
-C:\Dev\202601\api\CobrancaFacil.Api\bin\Debug\net8.0\Microsoft.IdentityModel.Tokens.dll
-C:\Dev\202601\api\CobrancaFacil.Api\bin\Debug\net8.0\System.IdentityModel.Tokens.Jwt.dll
