@@ -6,7 +6,14 @@ using System.Text;
 var builder = WebApplication.CreateBuilder(args);
 
 // Banco de dados MySQL
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+var mysqlHost = builder.Configuration["MYSQLHOST"];
+var mysqlPort = builder.Configuration["MYSQLPORT"];
+var mysqlDatabase = builder.Configuration["MYSQLDATABASE"];
+var mysqlUser = builder.Configuration["MYSQLUSER"];
+var mysqlPassword = builder.Configuration["MYSQLPASSWORD"];
+
+var connectionString =
+    $"Server={mysqlHost};Port={mysqlPort};Database={mysqlDatabase};Uid={mysqlUser};Pwd={mysqlPassword};SslMode=Preferred;";
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseMySql(
@@ -82,7 +89,6 @@ using (var scope = app.Services.CreateScope())
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     db.Database.Migrate();
 }
-
 
 // Controllers
 app.MapControllers();
