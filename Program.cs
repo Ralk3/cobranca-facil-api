@@ -6,25 +6,32 @@ using System.Text;
 var builder = WebApplication.CreateBuilder(args);
 
 // Banco de dados MySQL
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseMySql(
-        builder.Configuration.GetConnectionString("DefaultConnection"),
-        ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("DefaultConnection"))
-    ));
+        connectionString,
+        ServerVersion.AutoDetect(connectionString)
+    )
+);
 
 // CORS para permitir o front React
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("PermitirFront", policy =>
     {
-        policy.WithOrigins("http://localhost:5173")
-              .AllowAnyHeader()
-              .AllowAnyMethod();
+        policy.WithOrigins(
+                "http://localhost:5173"
+            )
+            .AllowAnyHeader()
+            .AllowAnyMethod();
     });
 });
 
 // JWT
 var jwtKey = builder.Configuration["Jwt:Key"];
+var jwtIssuer = builder.Configuration["Jwt:Issuer"];
+var jwtAudience = builder.Configuration["Jwt:Audience"];
 
 builder.Services.AddAuthentication(options =>
 {
@@ -40,9 +47,11 @@ builder.Services.AddAuthentication(options =>
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
 
-        ValidIssuer = builder.Configuration["Jwt:Issuer"],
-        ValidAudience = builder.Configuration["Jwt:Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey!))
+        ValidIssuer = jwtIssuer,
+        ValidAudience = jwtAudience,
+        IssuerSigningKey = new SymmetricSecurityKey(
+            Encoding.UTF8.GetBytes(jwtKey!)
+        )
     };
 });
 
@@ -53,7 +62,7 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Swagger em desenvolvimento
+// Swagger
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
