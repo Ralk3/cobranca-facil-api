@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="..\build\CobrancaFacil.Api.props" />
+</Project>

@@ -1,0 +1,6 @@
+@CobrancaFacil.Api_HostAddress = http://localhost:5111
+
+GET {{CobrancaFacil.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
