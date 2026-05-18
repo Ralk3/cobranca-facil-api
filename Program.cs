@@ -69,12 +69,21 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-// CORS deve vir antes de Authentication/Authorization
+// CORS
 app.UseCors("PermitirFront");
 
+// Authentication / Authorization
 app.UseAuthentication();
 app.UseAuthorization();
 
+// Executa migrations automaticamente
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.Migrate();
+}
+
+// Controllers
 app.MapControllers();
 
 app.Run();
