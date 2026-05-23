@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("CobrancaFacil.Api")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+6e87868c25dcfd6af57897ed23e4de4a9429de2a")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+36349c96894b7b3439c814790d2221fe2f1f66f9")]
 [assembly: System.Reflection.AssemblyProductAttribute("CobrancaFacil.Api")]
 [assembly: System.Reflection.AssemblyTitleAttribute("CobrancaFacil.Api")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
