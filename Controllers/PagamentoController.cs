@@ -8,7 +8,7 @@ using System.Text.Json;
 [Route("api/[controller]")]
 public class PagamentoController : ControllerBase
 {
-    // Contexto do banco de dados usado para acessar Usuarios e Pagamentos
+    // Contexto do banco utilizado pelo Entity Framework
     private readonly AppDbContext _context;
 
     public PagamentoController(AppDbContext context)
@@ -16,68 +16,79 @@ public class PagamentoController : ControllerBase
         _context = context;
     }
 
+    // Endpoint responsável por criar uma nova cobrança
     [Authorize]
     [HttpPost]
     public async Task<IActionResult> Criar([FromBody] CriarPagamentoDTO dto)
     {
-        // Pega o ID do usuário logado a partir do token JWT
+        // Recupera o ID do usuário logado através do JWT
         var userId = long.Parse(User.FindFirst("id")!.Value);
 
-        // Busca o usuário no banco de dados
+        // Busca o usuário no banco
         var usuario = await _context.Usuarios.FindAsync(userId);
 
-        // Se o usuário não existir, retorna não autorizado
+        // Valida se o usuário existe
         if (usuario == null)
             return Unauthorized("Usuário não encontrado.");
 
-        // Valida se o usuário possui token/código do Mercado Pago cadastrado
+        // Valida se o usuário possui token do Mercado Pago
         if (string.IsNullOrWhiteSpace(usuario.CodigoMercadoPago))
             return BadRequest("Usuário não possui código/token do Mercado Pago cadastrado.");
 
-        // Ajusta a data de vencimento para o fim do dia no horário do Brasil
-        // Isso evita problemas no Railway, que normalmente trabalha em UTC
+        // =========================================================
+        // AJUSTE IMPORTANTE PARA RAILWAY / UTC
+        // =========================================================
+        // Aqui criamos manualmente a data no timezone brasileiro.
+        // Isso evita erro de UTC Offset no Railway.
+        // Também colocamos o vencimento no fim do dia.
+        // =========================================================
         var dataExpiracaoBrasil = new DateTimeOffset(
-            dto.DateOfExpiration.Date.AddHours(23).AddMinutes(59).AddSeconds(59),
+            dto.DateOfExpiration.Year,
+            dto.DateOfExpiration.Month,
+            dto.DateOfExpiration.Day,
+            23,
+            59,
+            59,
             TimeSpan.FromHours(-3)
         );
 
-        // Cria o pagamento localmente no banco antes de chamar o Mercado Pago
-        // Assim temos um ID interno para usar como external_reference
+        // Cria o objeto de pagamento local
         var pagamento = new Pagamento
         {
             Title = dto.Title,
             Description = dto.Description,
             UnitPrice = dto.UnitPrice,
 
-            // Salva a data ajustada no banco
+            // Salva a data ajustada
             DateOfExpiration = dataExpiracaoBrasil.DateTime,
 
-            // Data de criação do registro no servidor
+            // Data de criação do registro
             CreatedAt = DateTime.Now,
 
-            // Status inicial da cobrança
+            // Status inicial
             Status = "pending",
 
-            // Relaciona o pagamento com o usuário logado
+            // Relaciona ao usuário logado
             UserId = userId
         };
 
-        // Adiciona o pagamento no contexto do Entity Framework
+        // Adiciona no contexto do Entity Framework
         _context.Pagamentos.Add(pagamento);
 
-        // Salva no banco para gerar o ID do pagamento
+        // Salva no banco para gerar ID
         await _context.SaveChangesAsync();
 
-        // Monta o payload que será enviado para o Mercado Pago
+        // =========================================================
+        // PAYLOAD ENVIADO AO MERCADO PAGO
+        // =========================================================
         var mercadoPagoPayload = new
         {
-            // Referência interna do pagamento criado no banco
+            // ID interno do sistema
             external_reference = pagamento.Id.ToString(),
 
-            // Envia a data no padrão aceito pelo Mercado Pago com timezone do Brasil
+            // Data formatada corretamente com timezone do Brasil
             date_of_expiration = dataExpiracaoBrasil.ToString("yyyy-MM-ddTHH:mm:ss.fffzzz"),
 
-            // Item da cobrança
             items = new[]
             {
                 new
@@ -90,48 +101,58 @@ public class PagamentoController : ControllerBase
             }
         };
 
-        // Serializa o payload para JSON
+        // Converte payload para JSON
         var json = JsonSerializer.Serialize(mercadoPagoPayload);
 
-        // Cria o cliente HTTP para chamar a API do Mercado Pago
+        // Cliente HTTP usado para chamar a API do Mercado Pago
         using var httpClient = new HttpClient();
 
-        // Cria a requisição POST para criar a preferência de pagamento
+        // Cria requisição POST
         var request = new HttpRequestMessage(
             HttpMethod.Post,
             "https://api.mercadopago.com/checkout/preferences"
         );
 
-        // Adiciona o token do Mercado Pago do usuário no header Authorization
+        // Adiciona token do usuário
         request.Headers.Add("Authorization", $"Bearer {usuario.CodigoMercadoPago}");
 
-        // Adiciona o JSON no corpo da requisição
+        // Adiciona body JSON
         request.Content = new StringContent(json, Encoding.UTF8, "application/json");
 
-        // Envia a requisição para o Mercado Pago
+        // Executa chamada HTTP
         var response = await httpClient.SendAsync(request);
 
-        // Lê o retorno da API do Mercado Pago
+        // Lê retorno da API
         var content = await response.Content.ReadAsStringAsync();
 
-        // Se o Mercado Pago retornar erro, devolve o erro para o front
+        // =========================================================
+        // SE MERCADO PAGO RETORNAR ERRO
+        // =========================================================
         if (!response.IsSuccessStatusCode)
-            return BadRequest(content);
+        {
+            return BadRequest(new
+            {
+                mensagem = "Erro ao criar preferência no Mercado Pago.",
+                retornoMercadoPago = content
+            });
+        }
 
-        // Converte o retorno do Mercado Pago para o DTO de resposta
-        var mercadoPagoResponse = JsonSerializer.Deserialize<MercadoPagoPreferenceResponseDTO>(content);
+        // Desserializa resposta
+        var mercadoPagoResponse =
+            JsonSerializer.Deserialize<MercadoPagoPreferenceResponseDTO>(content);
 
-        // Salva o ID gerado pelo Mercado Pago
+        // Salva ID do Mercado Pago
         pagamento.MercadoPagoId = mercadoPagoResponse?.id;
 
-        // Salva o link de pagamento
-        // Em sandbox usa sandbox_init_point; em produção usa init_point
-        pagamento.InitPoint = mercadoPagoResponse?.sandbox_init_point ?? mercadoPagoResponse?.init_point;
+        // Salva link de pagamento
+        pagamento.InitPoint =
+            mercadoPagoResponse?.sandbox_init_point
+            ?? mercadoPagoResponse?.init_point;
 
-        // Atualiza o pagamento no banco com os dados retornados pelo Mercado Pago
+        // Atualiza registro no banco
         await _context.SaveChangesAsync();
 
-        // Retorna para o front os dados da cobrança criada
+        // Retorna resposta para o front
         return Ok(new PagamentoResponseDTO
         {
             Id = pagamento.Id,
@@ -146,61 +167,67 @@ public class PagamentoController : ControllerBase
         });
     }
 
+    // Lista os pagamentos do usuário logado
     [Authorize]
     [HttpGet]
     public async Task<IActionResult> Listar()
     {
-        // Pega o ID do usuário logado pelo token JWT
+        // Recupera usuário logado
         var userId = long.Parse(User.FindFirst("id")!.Value);
 
-        // Busca apenas os pagamentos do usuário logado
+        // Busca pagamentos ordenados do mais novo para o mais antigo
         var pagamentos = await _context.Pagamentos
             .Where(p => p.UserId == userId)
             .OrderByDescending(p => p.Id)
             .ToListAsync();
 
-        // Retorna a lista para o front
+        // Retorna lista
         return Ok(pagamentos);
     }
 
+    // Endpoint público para visualizar pagamento
     [AllowAnonymous]
     [HttpGet("{id}")]
     public async Task<IActionResult> ObterPublico(long id)
     {
-        // Busca o pagamento pelo ID
+        // Busca pagamento pelo ID
         var pagamento = await _context.Pagamentos.FindAsync(id);
 
-        // Se não encontrar, retorna 404
+        // Se não existir retorna 404
         if (pagamento == null)
             return NotFound();
 
-        // Retorna os dados públicos do pagamento
+        // Retorna pagamento
         return Ok(pagamento);
     }
 
+    // Atualiza título e descrição do pagamento
     [Authorize]
     [HttpPut("{id}")]
-    public async Task<IActionResult> Atualizar(long id, [FromBody] AtualizarPagamentoDTO dto)
+    public async Task<IActionResult> Atualizar(
+        long id,
+        [FromBody] AtualizarPagamentoDTO dto
+    )
     {
-        // Pega o ID do usuário logado
+        // Usuário logado
         var userId = long.Parse(User.FindFirst("id")!.Value);
 
-        // Busca o pagamento pelo ID e garante que ele pertence ao usuário logado
+        // Busca pagamento do usuário
         var pagamento = await _context.Pagamentos
             .FirstOrDefaultAsync(p => p.Id == id && p.UserId == userId);
 
-        // Se não encontrar, retorna 404
+        // Se não existir retorna 404
         if (pagamento == null)
             return NotFound("Pagamento não encontrado para este usuário.");
 
-        // Atualiza os dados permitidos
+        // Atualiza dados
         pagamento.Title = dto.Title;
         pagamento.Description = dto.Description;
 
-        // Salva as alterações no banco
+        // Salva alterações
         await _context.SaveChangesAsync();
 
-        // Retorna confirmação para o front
+        // Retorna confirmação
         return Ok(new
         {
             mensagem = "Pagamento atualizado com sucesso.",
@@ -208,28 +235,29 @@ public class PagamentoController : ControllerBase
         });
     }
 
+    // Remove um pagamento
     [Authorize]
     [HttpDelete("{id}")]
     public async Task<IActionResult> Deletar(long id)
     {
-        // Pega o ID do usuário logado
+        // Usuário logado
         var userId = long.Parse(User.FindFirst("id")!.Value);
 
-        // Busca o pagamento pelo ID e usuário logado
+        // Busca pagamento do usuário
         var pagamento = await _context.Pagamentos
             .FirstOrDefaultAsync(p => p.Id == id && p.UserId == userId);
 
-        // Se não encontrar, retorna 404
+        // Se não encontrar retorna 404
         if (pagamento == null)
             return NotFound("Pagamento não encontrado para este usuário.");
 
-        // Remove o pagamento do banco
+        // Remove pagamento
         _context.Pagamentos.Remove(pagamento);
 
-        // Salva a exclusão
+        // Salva exclusão
         await _context.SaveChangesAsync();
 
-        // Retorna confirmação para o front
+        // Retorna confirmação
         return Ok(new
         {
             mensagem = "Pagamento deletado com sucesso."
