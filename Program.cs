@@ -28,8 +28,11 @@ builder.Services.AddCors(options =>
     options.AddPolicy("PermitirFront", policy =>
     {
         policy.WithOrigins(
+
                 "http://localhost:5173",
+                "https://localhost",
                 "https://cobrancas.online"
+
             )
             .AllowAnyHeader()
             .AllowAnyMethod();
